@@ -1,22 +1,14 @@
-
 import java.util.*;
 
-// Book class represents a book entity
 class Book {
-    private int id;
     private String title;
     private String author;
-    private boolean available;
+    private boolean isAvailable;
 
-    public Book(int id, String title, String author) {
-        this.id = id;
+    public Book(String title, String author) {
         this.title = title;
         this.author = author;
-        this.available = true;
-    }
-
-    public int getId() {
-        return id;
+        this.isAvailable = true;
     }
 
     public String getTitle() {
@@ -28,110 +20,131 @@ class Book {
     }
 
     public boolean isAvailable() {
-        return available;
+        return isAvailable;
     }
 
     public void setAvailable(boolean available) {
-        this.available = available;
+        isAvailable = available;
     }
 
     @Override
     public String toString() {
-        return "Book{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", author='" + author + '\'' +
-                ", available=" + available +
-                '}';
+        return "Title: " + title + ", Author: " + author + ", Available: " + isAvailable;
     }
 }
 
-// Library class manages the collection of books
 class Library {
     private List<Book> books;
 
     public Library() {
-        this.books = new ArrayList<>();
+        books = new ArrayList<>();
     }
 
-    // Add a new book to the library
     public void addBook(Book book) {
         books.add(book);
     }
 
-    // Display all books in the library
-    public void displayBooks() {
+    public Book searchBook(String title) {
         for (Book book : books) {
-            System.out.println(book);
-        }
-    }
-
-    // Find a book by its ID
-    public Book findBookById(int id) {
-        for (Book book : books) {
-            if (book.getId() == id) {
+            if (book.getTitle().equalsIgnoreCase(title)) {
                 return book;
             }
         }
         return null;
     }
 
-    // Borrow a book
-    public void borrowBook(int id) {
-        Book book = findBookById(id);
-        if (book != null && book.isAvailable()) {
-            book.setAvailable(false);
-            System.out.println("You have successfully borrowed the book: " + book.getTitle());
-        } else if (book != null && !book.isAvailable()) {
-            System.out.println("Sorry, the book is not available for borrowing.");
+    public void returnBook(String title) {
+        Book book = searchBook(title);
+        if (book != null) {
+            book.setAvailable(true);
+            System.out.println("Book returned successfully.");
         } else {
             System.out.println("Book not found.");
         }
     }
 
-    // Return a book
-    public void returnBook(int id) {
-        Book book = findBookById(id);
-        if (book != null && !book.isAvailable()) {
-            book.setAvailable(true);
-            System.out.println("You have successfully returned the book: " + book.getTitle());
-        } else if (book != null && book.isAvailable()) {
-            System.out.println("This book is already available in the library.");
+    public void borrowBook(String title) {
+        Book book = searchBook(title);
+        if (book != null) {
+            if (book.isAvailable()) {
+                book.setAvailable(false);
+                System.out.println("Book borrowed successfully.");
+            } else {
+                System.out.println("Book is not available.");
+            }
         } else {
             System.out.println("Book not found.");
+        }
+    }
+
+    public void displayBooks() {
+        if (books.isEmpty()) {
+            System.out.println("No books in the library.");
+        } else {
+            for (Book book : books) {
+                System.out.println(book);
+            }
         }
     }
 }
 
-// Main class to run the library management system
 public class LibraryManagementSystem {
-
     public static void main(String[] args) {
         Library library = new Library();
+        Scanner scanner = new Scanner(System.in);
 
-        // Adding some initial books to the library
-        library.addBook(new Book(1, "Java Programming", "John Doe"));
-        library.addBook(new Book(2, "Python Programming", "Jane Smith"));
-        library.addBook(new Book(3, "Data Structures and Algorithms", "Alice Johnson"));
+        while (true) {
+            System.out.println("\nLibrary Management System");
+            System.out.println("1. Add Book");
+            System.out.println("2. Search Book");
+            System.out.println("3. Borrow Book");
+            System.out.println("4. Return Book");
+            System.out.println("5. Display All Books");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
 
-        // Display all books in the library
-        System.out.println("Library books:");
-        library.displayBooks();
-
-        // Borrowing a book
-        System.out.println("\nBorrowing a book:");
-        library.borrowBook(2); // Borrow Python Programming
-
-        // Display all books after borrowing
-        System.out.println("\nLibrary books after borrowing:");
-        library.displayBooks();
-
-        // Returning a book
-        System.out.println("\nReturning a book:");
-        library.returnBook(2); // Return Python Programming
-
-        // Display all books after returning
-        System.out.println("\nLibrary books after returning:");
-        library.displayBooks();
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter book title: ");
+                    String title = scanner.nextLine();
+                    System.out.print("Enter book author: ");
+                    String author = scanner.nextLine();
+                    library.addBook(new Book(title, author));
+                    System.out.println("Book added successfully.");
+                    break;
+                case 2:
+                    System.out.print("Enter book title to search: ");
+                    title = scanner.nextLine();
+                    Book book = library.searchBook(title);
+                    if (book != null) {
+                        System.out.println(book);
+                    } else {
+                        System.out.println("Book not found.");
+                    }
+                    break;
+                case 3:
+                    System.out.print("Enter book title to borrow: ");
+                    title = scanner.nextLine();
+                    library.borrowBook(title);
+                    break;
+                case 4:
+                    System.out.print("Enter book title to return: ");
+                    title = scanner.nextLine();
+                    library.returnBook(title);
+                    break;
+                case 5:
+                    library.displayBooks();
+                    break;
+                case 6:
+                    System.out.println("Exiting...");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+                    break;
+            }
+        }
     }
 }
